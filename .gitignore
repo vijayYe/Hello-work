@@ -1,0 +1,53 @@
+# Object files
+*.o
+*.d
+*.ko
+*.obj
+*.elf
+*.bin
+*.ota
+*.map
+#*.bat
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+#*os_gen.c
+*.IAD
+*.IMB
+*.IMD
+*.PFI
+*.PO
+*.PR
+*.PRI
+*.PS
+*.WK3
+*.tags
+*.SearchResults
+
+# Debug files
+*.dSYM/
+
+.metadata
+
+
