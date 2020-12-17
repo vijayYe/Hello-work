@@ -29,6 +29,20 @@ int main(int argc, char *argv[])
 	std::cout << "a:" << a << "\nb:" << b << std::endl;
 #endif
 #if 0
+	string strHello = "hello world";
+	std::cout << strHello << std::endl;
+	string in_str;
+	while(std::cin >> in_str && in_str != "quit"){
+		std::cout << in_str << ", size" << in_str.size() << std::endl;
+	};
+	for(auto c : strHello){
+		for(auto &c : strHello){
+			std::cout << c << std::endl;
+			if(c == ' ') c = '>';
+		}
+	std::cout << strHello << std::endl;
+#endif
+#if 0
 	vector<int> v_i;
 	for(int i = 0; i < 50; i++)
 		v_i.push_back(i);
