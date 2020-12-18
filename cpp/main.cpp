@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-
+#include "device.h"
 using namespace std;
 
 inline double division(int a, int b)
@@ -17,6 +17,11 @@ double division(double a=6.0, double b=2.0)
 	return (a/b);
 }
 
+void printfDevType(const device &obj)
+{
+	//cout << "friend printf deviceType: " << obj.u8DevType << endl; 
+	printf("friend printf device type:%d\n",obj.u8DevType);
+}
 
 int main(int argc, char *argv[])
 {
@@ -91,7 +96,13 @@ int main(int argc, char *argv[])
 	printf("%f\n",d1);
 #endif
 #if 1
-
+	device dev1;
+	dev1.setDevType((uint8_t)10);
+	device dev2 = dev1;
+	device dev3 = device(20);
+	printfDevType(dev1);
+	printfDevType(dev2);
+	printfDevType(dev3);
 #endif
 	return 0;
 }
