@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 	d1 = division(13.4);
 	printf("%f\n",d1);
 #endif
-#if 1
+#if 0
 	device dev1;
 	dev1.setDevType((uint8_t)10);
 	device dev2 = dev1;
@@ -103,6 +103,9 @@ int main(int argc, char *argv[])
 	printfDevType(dev1);
 	printfDevType(dev2);
 	printfDevType(dev3);
+#endif
+#if 1
+
 #endif
 	return 0;
 }

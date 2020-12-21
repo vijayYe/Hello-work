@@ -34,3 +34,5 @@ void device::setDevType(uint8_t u8Type)
 	printf("set devType:%d,%d\n",this->u8DevType, u8Type);
 }
 #endif
+
+
