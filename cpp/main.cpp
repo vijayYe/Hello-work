@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 		}
 	std::cout << strHello << std::endl;
 #endif
-#if 0
+#if 1
 	vector<int> v_i;
 	for(int i = 0; i < 50; i++)
 		v_i.push_back(i);
@@ -57,16 +57,20 @@ int main(int argc, char *argv[])
 		printf("%d ",v_i[i]);
 	printf("\n");
 
+	std::cout << "enter sting, 'quit' continue" << endl;
 	string strValue;
 	vector<string> v_str;
 	while(std::cin>>strValue && "quit" != strValue){
 		v_str.push_back(strValue);
 	}
-	printf("empty:%d, size:%lu :", v_str.empty(), v_str.size());
-	//for(vector<string>::iterator iter = v_str.begin(); iter != v_str.end(); ++iter)
+	printf("empty:%d, size:%lu \n", v_str.empty(), v_str.size());
 	for(auto iter : v_str)
-		//printf("%s\n", iter.c_str());	
 		std::cout << iter << std::endl;
+	//迭代器
+	std::cout << ">>>>>>>iterator<<<<<<<" << endl;
+	for(vector<string>::iterator v = v_str.begin(); v != v_str.end(); v++){
+		std::cout << *v <<endl;
+	}
 #endif
 #if 0
 	try{
