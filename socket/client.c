@@ -12,7 +12,8 @@
 
 
 
-#define MYPORT  8887
+#define MYPORT  9995
+
 #define BUFFER_SIZE 1024
 
 #define STDIN_FD    0
@@ -60,38 +61,59 @@ int main()
 	printf("fd_max:%d, %d,%d,%d,%d\n",fd_max,stdin_fd,sock_fd, sock_pair[0], sock_pair[1]);
 	char sendbuf[BUFFER_SIZE];
 	char recvbuf[BUFFER_SIZE];
-	while(1){
+	uint8_t loop = 255;
+	while(loop){
+		printf("\n\n================\n");
+		if(loop != 0xFF) loop--;
+		fd_max = STDIN_FD;
 		FD_ZERO(&fdset); 
-		FD_SET(stdin_fd, &fdset);
-		FD_SET(sock_fd, &fdset);
-		if(-1 != sock_pair[0]) FD_SET(sock_pair[0], &fdset);
+		if(-1 != stdin_fd) {
+			FD_SET(stdin_fd, &fdset);
+			if(stdin_fd > fd_max) fd_max = stdin_fd;
+			printf("stdin_fd\n");
+		}
+		if(-1 != sock_fd){
+			FD_SET(sock_fd, &fdset);
+			if(sock_fd > fd_max) fd_max = sock_fd;printf("sock_fd\n");
+		}
+		if(-1 != sock_pair[0]){
+			FD_SET(sock_pair[0], &fdset);
+			if(sock_pair[0] > fd_max) fd_max = sock_pair[0];printf("sock_pair\n");
+		}
 		int ret = select(fd_max+1, &fdset, NULL, NULL, NULL);
-		printf(">>ret:%d, %d,%d,%d\n",ret, FD_ISSET(stdin_fd, &fdset), FD_ISSET(sock_fd, &fdset), FD_ISSET(sock_pair[0], &fdset));
+		printf(">>max_fd:%d, ret:%d, %d,%d,%d\n",fd_max, ret, FD_ISSET(stdin_fd, &fdset), FD_ISSET(sock_fd, &fdset), FD_ISSET(sock_pair[0], &fdset));
+		if(ret < 0) continue;
 		if(FD_ISSET(stdin_fd, &fdset)){
 			printf(">>stdin_fd\n");
 			memset(sendbuf, 0, sizeof(sendbuf));
 			int r_len = read(stdin_fd, sendbuf, sizeof(sendbuf));
 			if(r_len > 0){
 				printf("=======stdin:%s\n",sendbuf);
-				send(sock_fd, sendbuf, strlen(sendbuf),0); ///发送
+				if(-1 != sock_fd) send(sock_fd, sendbuf, strlen(sendbuf),0); ///发送
 				if(-1 != sock_pair[1]) send(sock_pair[1], sendbuf, strlen(sendbuf), 0);
 				if(strcmp(sendbuf,"exit\n")==0) break;
+				else if(strcmp(sendbuf,"connect\n")==0){
+					if(-1 == sock_fd){
+						sock_fd = socket(AF_INET,SOCK_STREAM, 0);
+						if(sock_fd > fd_max) fd_max = sock_fd;
+						while (connect(sock_fd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0){
+							perror("connect");
+							//exit(1);
+							sleep(1);
+						}
+					}
+				}
 			}
 		}
-		if(FD_ISSET(sock_fd, &fdset)){
-			printf(">>sock_fd\n");
+		if(-1 != sock_fd && FD_ISSET(sock_fd, &fdset)){
 			memset(recvbuf, 0, sizeof(recvbuf));
-			int r_len = recv(sock_fd, recvbuf, sizeof(recvbuf),0); ///接收
-			if(r_len <= 0){
-				printf("clost fd, reconnect\n");
+			int r_len = recv(sock_fd, recvbuf, sizeof(recvbuf),0); ///接收			
+			printf(">>sock_fd: %d, recvLen:%d\n",sock_fd, r_len);
+			if(r_len <= 0){ //sevice off_line
+				printf("clost fd\n");
+				//FD_CLR(sock_fd, &fdset);
 				close(sock_fd);
-				sock_fd = socket(AF_INET,SOCK_STREAM, 0);
-				while (connect(sock_fd, (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0){
-					perror("connect");
-					//exit(1);
-					sleep(1);
-				}
-				
+				sock_fd = -1;
 			}else{
 				printf("come service:%s\n",recvbuf);
 			}
