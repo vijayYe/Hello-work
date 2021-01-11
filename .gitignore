@@ -50,4 +50,8 @@
 
 .metadata
 
+#picture
+*.jpg
+*.png
+*.gif
 

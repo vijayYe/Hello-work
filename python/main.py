@@ -36,7 +36,7 @@ else:
     a=0
 """
 
-#"""
+"""
 def max(a,b):
     if a > b:
         return a
@@ -55,4 +55,34 @@ print(id(str))
 str='ede'
 print(str)
 print(id(str))
+"""
+
 #"""
+import re
+str1 = 'www.runoob.com'
+str2 = "Cats are smarter than dogs"
+print(re.match('www', str1).span())  # 在起始位置匹配
+print(re.match('run', str1).span())  # 在起始位置匹配
+print(re.match('com', str1))         # 不在起始位置匹配
+
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+#"""
+
+
