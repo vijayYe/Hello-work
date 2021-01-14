@@ -1,0 +1,181 @@
+#!/usr/bin/python3
+
+
+# 1
+import requests, json, time, sys
+from contextlib import closing
+
+class get_photos(object):
+
+    def __init__(self):
+        self.photos_id = []
+        self.download_server = 'https://unsplash.com/photos/xxx/download?force=trues'
+        self.target = 'http://unsplash.com/napi/feeds/home'
+        self.headers = {'authorization':'Client-ID c94869b36aa272dd62dfaeefed769d4115fb3189a9d1ec88ed457207747be626'}
+
+    """
+    函数说明:获取图片ID
+    Parameters:
+        无
+    Returns:
+        无
+    Modify:
+        2017-09-13
+    """   
+    def get_ids(self):
+        req = requests.get(url=self.target, headers=self.headers, verify=False)
+        html = json.loads(req.text)
+        next_page = html['next_page']
+        for each in html['photos']:
+            self.photos_id.append(each['id'])
+        time.sleep(1)
+        for i in range(5):
+            req = requests.get(url=next_page, headers=self.headers, verify=False)
+            html = json.loads(req.text)
+            next_page = html['next_page']
+            for each in html['photos']:
+                self.photos_id.append(each['id'])
+            time.sleep(1)
+
+
+    """
+    函数说明:图片下载
+    Parameters:
+        无
+    Returns:
+        无
+    Modify:
+        2017-09-13
+    """   
+    def download(self, photo_id, filename):
+        headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36'}
+        target = self.download_server.replace('xxx', photo_id)
+        with closing(requests.get(url=target, stream=True, verify = False, headers = self.headers)) as r:
+            with open('%d.jpg' % filename, 'ab+') as f:
+                for chunk in r.iter_content(chunk_size = 1024):
+                    if chunk:
+                        f.write(chunk)
+                        f.flush()
+
+if __name__ == '__main__':
+    gp = get_photos()
+    print('获取图片连接中:')
+    gp.get_ids()
+    print('图片下载中:')
+    for i in range(len(gp.photos_id)):
+        print('  正在下载第%d张图片' % (i+1))
+        gp.download(gp.photos_id[i], (i+1))
+
+
+
+
+
+
+#2
+import requests
+import os
+from bs4 import BeautifulSoup
+
+
+#访问的域名地址
+all_url = 'http://www.mzitu.com'
+
+#配置header 请求头
+headers_w = {
+    'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
+    'Referer': 'http://www.mzitu.com'
+}
+headers_i = {
+    'User-Agent': 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)',
+    'Referer': 'http://i.meizitu.net'
+}
+
+#发送get请求,获取某个网页,并使用.text属性打印出源码信息
+start_html = requests.get(all_url,headers=headers_w)
+#print(start_html.text)
+
+#定义保存地址.
+path = 'images'
+
+#寻求最大页数
+#我们使用bs4模块开从html文件中提取数据,使用BeautifulSoup模块解析代码
+soup = BeautifulSoup(start_html.text, features='html.parser')
+#print(soup)
+#找出源码中所有包含class_='page-numbers'的a标签,会以一个列表的形式保存
+page = soup.find_all('a',class_='page-numbers')
+#print(page)
+#取出next的上一个页面数199
+if page:
+    max_page = page[-2].text
+#print(max_page)
+
+#
+same_url = "http://www.mzitu.com/page/"
+
+for i in range(1,int(max_page)+1):
+    #构造每页的url
+    page_url = same_url + str(i)
+    #print(page_url)
+    #请求每页的url
+    get_page_url = requests.get(page_url,headers=headers_w)
+    #加载每页源码内容
+    page_soup = BeautifulSoup(get_page_url.text,'html.parser')
+    #print(page_soup)
+    # 将div标签中包含class_=''postlist取出，在取出a标签中target=_blank的标签内容.
+    get_all_a = soup.find('div',class_='postlist').find_all('a',target='_blank')
+    #print(get_all_a)
+    for a in get_all_a:
+        #print(a)
+        #从标签中获取所有文字内容
+        title = a.get_text()
+        #print(title)
+        if title != '':
+            print("准备爬取:%s" %(title))
+
+            #处理字符串，先去除空行，然后将?号替换为空,再将':'替换成空行
+            #判断目录是否存在
+            #print(path + title.strip().replace('?','').replace(':',''))
+            if not os.path.exists(path + title.strip().replace('?','').replace(':','')):
+                os.makedirs(path + title.strip().replace('?','').replace(':',''))
+            # 改变当前工作目录；相当于shell下cd
+            os.chdir(path + title.strip().replace('?', '').replace(':', ''))
+            # 获取每一张图片页面的url,如http://www.mzitu.com/155568
+            href = a.get('href')
+            # print(href)
+            # 图片url中取出图片的页数和jpg结尾的图片地址
+            html = requests.get(href,)
+            mess = BeautifulSoup(html.text,'html.parser')
+            pic_max = mess.find_all('span')
+            # pic_max[10] 取出来的是图片页数，如<span>41</span>、<span>42</span>
+            pic_max = pic_max[10].text
+            #print(pic_max)
+            if len(os.listdir(path+title.strip().replace('?','').replace(':',''))) >= int(pic_max):
+                print('已经保存完毕，跳过')
+                continue
+            for num in range(1,int(pic_max)+1):
+                #print(num)
+                pic = href + '/' + str(num)
+                # 打印出url如下:http://www.mzitu.com/155192/44
+                #print(pic)
+                #从pic的url中取出图片地址
+                html = requests.get(pic,headers=headers_w)
+                #print(html.url)
+                mess = BeautifulSoup(html.text,'html.parser')
+                #print(mess)
+                pic_url = mess.find('img', alt=title)
+                #打印出图片地址: <img alt="外拍精彩呈现" src="http://i.meizitu.net/2018/11/01a02.jpg"/>
+                #print(pic_url)
+                html_img = requests.get(pic_url.get('src'),headers=headers_i)
+                #请求每张图片的下载url：http://i.meizitu.net/2018/11/02f33.jpg
+                #print(html_img.url)
+                file_name = pic_url.get('src').split('/')[-1]
+                #print(file_name)
+
+                with open(file_name,'wb') as f :
+                    f.write(html_img.content)
+                print('图片 %s 保存完成' %(file_name))
+    print('第',i,'页爬取完成.')
+
+
+     
+   

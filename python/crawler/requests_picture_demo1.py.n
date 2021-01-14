@@ -1,0 +1,65 @@
+#!/usr/bin/python3
+
+
+# 1
+import requests, json, time, sys
+from contextlib import closing
+from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
+
+class get_photos(object):
+
+    def __init__(self):
+        self.photos_url = []
+        self.download_server = 'https://unsplash.com/photos/xxx/download?force=trues'
+        self.target = 'https://tieba.baidu.com/p/1753935195?red_tag=3072568883'
+        #self.headers = {'authorization':'Client-ID c94869b36aa272dd62dfaeefed769d4115fb3189a9d1ec88ed457207747be626'}
+        self.headers = {'User-Agent':'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.79 Safari/537.36',
+                        'Cookie': 'BIDUPSID=7AA6985FA4302E7A6C6625FE0611698C; PSTM=1593574735; bdshare_firstime=1593674763140; MCITY=-%3A; BAIDUID=72B4DC06A62227A81F09137DFDBC26F5:FG=1; BDUSS=c3QlA3UjNtTUJwMFh4VW1oblk1UmxwR3ZMWkE0WEkySklzaFlQdTNmYmxUT1ZmRVFBQUFBJCQAAAAAAAAAAAEAAAB~jck6VklWSVdJMjIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOW~vV~lv71fYz; BDUSS_BFESS=c3QlA3UjNtTUJwMFh4VW1oblk1UmxwR3ZMWkE0WEkySklzaFlQdTNmYmxUT1ZmRVFBQUFBJCQAAAAAAAAAAAEAAAB~jck6VklWSVdJMjIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOW~vV~lv71fYz; __yjs_duid=1_8222c45ffaef2177bda11dc4fd1c742f1608798907774; STOKEN=abf275c66f6f5813bf5de784a2ee6b513e042409bc8321ea7ca5c712ce3499f3; Hm_lvt_287705c8d9e2073d13275b18dbd746dc=1608102776,1608713325,1609814049,1609901309; BDSFRCVID=LhLOJeC62xJXBAnrUYwM-VP3hHgENBRTH6aoV1JxrCFosQaRGUzmEG0PHx8g0Kubpw3xogKK0mOTH6KF_2uxOjjg8UtVJeC6EG0Ptf8g0M5; H_BDCLCKID_SF=tJ-t_CIhfC83fP36q4rth4Pqqxby26nr2gJ9aJ5nJDoWOxntLtTK3qFWXecpQTJ3WIv42qo4QpP-HJ7KDf6WKxtzhpbI5ljxQ6QLKl0MLpnWbb0xynoDKbby2MnMBMPjamOnaIQc3fAKftnOM46JehL3346-35543bRTLnLy5KJYMDcnK4-Xj5oQjajP; BDSFRCVID_BFESS=LhLOJeC62xJXBAnrUYwM-VP3hHgENBRTH6aoV1JxrCFosQaRGUzmEG0PHx8g0Kubpw3xogKK0mOTH6KF_2uxOjjg8UtVJeC6EG0Ptf8g0M5; H_BDCLCKID_SF_BFESS=tJ-t_CIhfC83fP36q4rth4Pqqxby26nr2gJ9aJ5nJDoWOxntLtTK3qFWXecpQTJ3WIv42qo4QpP-HJ7KDf6WKxtzhpbI5ljxQ6QLKl0MLpnWbb0xynoDKbby2MnMBMPjamOnaIQc3fAKftnOM46JehL3346-35543bRTLnLy5KJYMDcnK4-Xj5oQjajP; H_PS_PSSID=; BDORZ=FFFB88E999055A3F8A630C64834BD6D0; delPer=0; BAIDUID_BFESS=8B826189955128FC50BE55B004800007:FG=1; wise_device=0; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1608713325,1609814048,1609901309,1610527875; st_key_id=17; PSINO=2; ab_sr=1.0.0_NDVmODQ5ZjAxYTMzYTk0MTAxMjljMGIxZTc2MDVhMDEzYTZjNDgyMTljY2I2YjE0NmExNDI3MzEyMzUzODc0YTZjN2FjYmE3ZDYyMWExZTk0NTQzYWIyNTliY2JkZTM4Yjg0ODcwZGIxNzNlMmY3ZmMxYzc2MjNkMTc2NDNmMjE=; st_data=76a84bfd361cf1514c8384262ed4e6ffeb8452bf45b2f075e21a487c97ea8a8767afbc591b3ce097531237301b27c2a566faca0655b5f789ad575ca1c6a8a780a5329ee57090842592b7d83defccd475e60da2c192d990a269d6a0533416ba94ec1473b812df3c6d91490c268f2efc2931ce14f21b797c8d6f628a672b29b622; st_sign=bae2f365; Hm_lpvt_98b9d8c2fd6608d564bf2ac2ae642948=1610589642; BDRCVFR[LjY4kjSi7r_]=OjjlczwSj8nXy4Grjf8mvqV; BA_HECTOR=21al858500a525ah1j1fvvau40r'}
+
+    def get_ids(self):
+        #req = requests.get(url=self.target, headers=self.headers, verify=False)
+        req = requests.get(url=self.target, headers=self.headers)
+        html = req.text
+        div_bf = BeautifulSoup(html,features='html.parser')
+        #print(div_bf.prettify())
+        #print(div_bf.div)
+        #print(div_bf.img)
+        #div = div_bf.find_all('div')
+        #img = div_bf.find_all('img',changedsize="true", class_="BDE_Image")
+        img = div_bf.find_all('img', class_="BDE_Image")
+        for i in img:
+           #print(i.get('src'))
+           self.photos_url.append(i.get('src'))
+        #data_t = open("data.txt", mode='w+')
+        #data_t.write(html)
+        
+  
+    def download(self, photo_id, filename):
+        #target = self.download_server.replace('xxx', photo_id) #替换
+        target = photo_id
+        with closing(requests.get(url=target, stream=True, verify = False)) as r:
+            with open(r'picture/%d.jpg' % filename, 'ab+') as f:
+                for chunk in r.iter_content(chunk_size = 1024):
+                    if chunk:
+                        f.write(chunk)
+                        f.flush()         
+
+if __name__ == '__main__':
+    gp = get_photos()
+    gp.get_Cookies()
+    print('获取图片连接中:')
+    gp.get_ids()
+
+    print('图片下载中:')
+    for i in range(len(gp.photos_url)):
+        print('  正在下载第%d张图片,url: ' % (i+1) + gp.photos_url[i])
+        gp.download(gp.photos_url[i], (i+1))
+
+
+
+
+
+
+     
+   

@@ -1,0 +1,187 @@
+#!/usr/bin/python3
+
+
+
+"""
+import urllib.request
+data_h = open("data.html", mode='w+')
+data_t = open("data.txt", mode='w+')
+#url = 'http://www.douban.com/'
+url = 'http://www.baidu.com/'
+webPage=urllib.request.urlopen(url)
+data = webPage.read()
+data = data.decode( 'UTF-8' )
+
+#print(data)
+print(type(webPage))
+print(webPage.geturl())
+#print(webPage.info())
+print(webPage.getcode())
+#data_h.write(data)
+#data_t.write(webPage.getcode())
+"""
+
+"""
+import urllib.request
+data_h = open("data.html", mode='w+')
+data_t = open("data.txt", mode='w+')
+weburl = 'http://www.douban.com/'
+webheader = { 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0' }
+req = urllib.request.Request(url=weburl, headers=webheader) 
+webPage=urllib.request.urlopen(req)
+data = webPage.read()
+data = data.decode( 'UTF-8' )
+#print(data)
+print(type(webPage))
+print(webPage.geturl())
+#print(webPage.info())
+print(webPage.getcode())
+data_h.write(data)
+"""
+
+"""
+import urllib.request
+data_h = open("data.html", mode='w+')
+data_t = open("data.txt", mode='w+')
+weburl = 'http://www.douban.com/'
+webheader1 = { 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0' }
+webheader2 = {
+     'Connection' : 'Keep-Alive' ,
+     'Accept' : 'text/html, application/xhtml+xml, */*' ,
+     'Accept-Language' : 'en-US,en;q=0.8,zh-Hans-CN;q=0.5,zh-Hans;q=0.3' ,
+     'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko' ,
+     # 'Accept-Encoding' : 'gzip, deflate' ,
+     'Host' : 'www.douban.com' ,
+     'DNT' : '1'
+     }
+req = urllib.request.Request(url=weburl, headers=webheader2) 
+webPage=urllib.request.urlopen(req)
+data = webPage.read()
+data = data.decode( 'UTF-8' )
+#print(data)
+print(type(webPage))
+print(webPage.geturl())
+#print(webPage.info())
+print(webPage.getcode())
+data_h.write(data)
+"""
+
+"""
+import urllib.request 
+import socket 
+import re 
+import sys 
+import os 
+targetDir = r'picture'  #文件保存路径
+def destFile(path):
+     if not os.path.isdir(targetDir): 
+         os.mkdir(targetDir) 
+     pos = path.rindex( '/' ) 
+     t = os.path.join(targetDir, path[pos+ 1 :]) 
+     return t 
+
+if __name__ == '__main__':  #程序运行入口
+     weburl = 'http://www.douban.com/'
+     webheaders = { 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:23.0) Gecko/20100101 Firefox/23.0' }
+     webheaders2 = {
+         'Connection' : 'Keep-Alive' ,
+         'Accept' : 'text/html, application/xhtml+xml, */*' ,
+         'Accept-Language' : 'en-US,en;q=0.8,zh-Hans-CN;q=0.5,zh-Hans;q=0.3' ,
+         'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko' ,
+         # 'Accept-Encoding' : 'gzip, deflate' ,
+         'Host' : 'www.douban.com' ,
+         'DNT' : '1'
+         }
+     req = urllib.request.Request(url=weburl, headers=webheaders2)  #构造请求报头
+     webpage = urllib.request.urlopen(req)  #发送请求报头
+     contentBytes = webpage.read() 
+ 
+     print("read url")
+     print(set(re.findall(r'(https:[^s]*?(jpg|png|gif))' , str(contentBytes))))
+     for link, t in set(re.findall(r'(https:[^s]*?(jpg|png|gif))' , str(contentBytes))):  #正则表达式查找所有的图片
+         print(link)
+         #print(t)
+         try :
+            urllib.request.urlretrieve(link, destFile(link)) #下载图片
+         except:
+             print( '失败' ) #异常抛出
+"""
+
+"""
+import gzip
+import re
+import http.cookiejar
+import urllib.request
+import urllib.parse
+#解压函数
+def ungzip(data):
+     try :        # 尝试解压
+         print( '正在解压.....' )
+         data = gzip.decompress(data)
+         print( '解压完毕!' )
+     except:
+         print( '未经压缩, 无需解压' )
+     return data
+#获取_xsrf
+def getXSRF(data):
+     cer = re.compile( 'name=_xsrf value=(.*)' , flags = 0 )
+     strlist = cer.findall(data)
+     #print(strlist)
+     if strlist:
+        print("strlist[0]")
+        return strlist[0]
+     else:
+        print("strlist为空")
+        
+     
+#构造文件头
+def getOpener(head):
+     #设置一个cookie处理器，它负责从服务器下载cookie到本地，并且在发送请求时带上本地的cookie
+     cj = http.cookiejar.CookieJar()
+     pro = urllib.request.HTTPCookieProcessor(cj)
+     opener = urllib.request.build_opener(pro)
+     header = []
+     for key, value in head.items():
+         elem = (key, value)
+         header.append(elem)
+     opener.addheaders = header
+     return opener
+#构造header，一般header至少要包含一下两项。这两项是从抓到的包里分析得出的。  
+header = {
+     'Connection' : 'Keep-Alive' ,
+     'Accept' : 'text/html, application/xhtml+xml, */*' ,
+     'Accept-Language' : 'en-US,en;q=0.8,zh-Hans-CN;q=0.5,zh-Hans;q=0.3' ,
+     'User-Agent' : 'Mozilla/5.0 (Windows NT 6.3; WOW64; Trident/7.0; rv:11.0) like Gecko' ,
+     'Accept-Encoding' : 'gzip, deflate' ,
+     'Host' : 'www.zhihu.com' ,
+     'DNT' : '1'
+}
+data_h = open("data.html", mode='w+') 
+
+url = 'http://www.zhihu.com/'
+opener = getOpener(header)
+op = opener.open(url)
+data = op.read()
+data = ungzip(data)     # 解压
+
+_xsrf = getXSRF(data.decode())
+#post数据接收和处理的页面（我们要向这个页面发送我们构造的Post数据）
+url += 'login/email'
+id = 'xxxling20x081005@126.com'
+password = 'christmas258@'
+#构造Post数据，他也是从抓大的包里分析得出的。
+postDict = {
+         '_xsrf' :_xsrf, #特有数据，不同网站可能不同 
+         'email' : id,
+         'password' : password,
+         'rememberme' : 'y'
+}
+#需要给Post数据编码 
+postData = urllib.parse.urlencode(postDict).encode()
+op = opener.open(url, postData)
+data = op.read()
+data = ungzip(data)
+
+#print(data.decode())
+#"""
+             

@@ -25,7 +25,6 @@ class get_photos(object):
         html = req.text
         try:
             s_json=json.loads(html)
-            #print(s_json)
             dataList = s_json['data']
             x = 0
             for x in range(0,len(dataList)):
@@ -37,10 +36,8 @@ class get_photos(object):
                     print('没有找到路径')
         except:
             print("json error")
-        data_t = open("data.txt", mode='w+')
-        data_t.write(str(s_json))
-        data_h = open("data.html", mode='w+')
-        data_h.write(html)
+        #data_t = open("data.txt", mode='w+')
+        #data_t.write(str(s_json['data']))
  
   
     def download(self, photo_id, filename):
